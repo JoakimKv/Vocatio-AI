@@ -18,6 +18,12 @@ id_ed25519
 id_ed25519.pub
 *.wav
 *.mp4
+temp/*.mp4
+temp/*.wav
+video/*.mp4
+video/*.wav
+audio/*.mp4
+audio/*.wav
 
 transcriptions.json
 transcriptions.json
