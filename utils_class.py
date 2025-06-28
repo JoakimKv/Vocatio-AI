@@ -8,7 +8,8 @@ class Utils:
    def __init__(self, st_screen):
        
       self.st_screen = st_screen
-      self.file_path = ""
+      self.file_path_audio = ""
+      self.file_path_video = ""
 
    def convert_mp4_to_wav(self, mp4_file_path):
 
@@ -37,6 +38,7 @@ class Utils:
  
       return wav_file_path
 
+   # Saves the uploaded file to the hard drive and returns the filename.
    def save_uploaded_file(self, uploaded_file):
 
       file_path = os.path.join("temp", uploaded_file.name)
@@ -45,21 +47,29 @@ class Utils:
 
          f.write(uploaded_file.getbuffer())
 
-      self.file_path = file_path
-
       return file_path
 
-   # New path_hook function
-   def path_hook(self, d):
+   # New path_hook function for audio.
+   def path_hook_audio(self, d):
 
       if d['status'] == 'finished':
 
          print("Download completed ...")
          file_path = d['filename']
 
-         self.file_path = file_path
+         self.file_path_audio = file_path
 
-   # Updated download_youtube_audio function
+   # New path_hook function for video.
+   def path_hook_video(self, d):
+
+      if d['status'] == 'finished':
+
+         print("Download completed ...")
+         file_path = d['filename']
+
+         self.file_path_video = file_path
+
+   # Updated download_youtube_audio function (for .wav format).
    def download_youtube_audio(self, url):
 
       try:
@@ -67,7 +77,7 @@ class Utils:
          ydl_opts = {
                     'format': 'bestaudio/best',  # Get the best audio-only format
                     'outtmpl': './temp/%(title)s',  # output path
-                    'progress_hooks': [self.path_hook],
+                    'progress_hooks': [self.path_hook_audio],
                     'postprocessors': [{
                        'key': 'FFmpegExtractAudio',
                        'preferredcodec': 'wav',  # Convert to .wav format
@@ -81,12 +91,42 @@ class Utils:
             ydl.download([url])
 
          self.st_screen.write("Download completed ...")
-         print(self.file_path)
+         print(self.file_path_audio)
 
-         return self.file_path + '.wav'
+         return self.file_path_audio + '.wav'
     
       except Exception as e:
 
          self.st_screen.error(f"Failed to download YouTube audio: {e}")    
 
          return None
+      
+   # Updated download_youtube_video function (for .mp4 format).
+   def download_youtube_video(self, url):
+
+      try:
+
+         ydl_opts = {
+                    'format': 'bestvideo+bestaudio/best',  # Get the best video with audio.
+                    'outtmpl': './temp/%(title)s.mp4',     # Specify the output path and ensure the extension is .mp4.
+                    'progress_hooks': [self.path_hook_video],
+                    'merge_output_format': 'mp4',          # Ensure output is in .mp4 format.
+         }
+
+         self.st_screen.write("Downloading video from YouTube ...")
+
+         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            
+            ydl.download([url])
+
+         self.st_screen.write("Download completed ...")
+         print(self.file_path_video)
+
+         return self.file_path_video + '.mp4'
+    
+      except Exception as e:
+
+         self.st_screen.error(f"Failed to download YouTube video: {e}")    
+
+         return None       
+

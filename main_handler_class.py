@@ -236,13 +236,14 @@ class MainHandler:
 
       try:
 
-         file_path = self.utils.download_youtube_audio(youtube_url)
+         file_path_audio = self.utils.download_youtube_audio(youtube_url)
+         file_path_video = self.utils.download_youtube_video(youtube_url)
 
-         if file_path and file_path.endswith(".mp4"):
+         if file_path_audio and file_path_audio.endswith(".mp4"):
 
-            file_path = self.utils.convert_mp4_to_wav(file_path)
+            file_path_audio = self.utils.convert_mp4_to_wav(file_path_audio)
 
-         self.process_file(file_path)
+         self.process_file(file_path_audio)
 
       except Exception as e:
 
